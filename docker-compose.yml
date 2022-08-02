@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: DockerFile
+    ports:
+      - '80:3000'
+    environment:
+      VUE_APP_BACK_HOST_PORT: ${HOST-localhost}:8080
+      PORT: 3000
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: DockerFile
+    ports:
+      - '8080:8080'
+    depends_on:
+      - db
+    environment:
+      DB_NAME: database
+      DB_USERNAME: user
+      DB_PASSWORD: password
+      PORT: 8080
+      DB_HOST: db
+      FRONT_HOST_PORT: ${HOST-localhost}
+
+  db:
+    image: 'postgres:13-alpine'
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: user
+      POSTGRES_DB: database
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - 'db:/var/lib/postgresql/data/pgdata'
+
+volumes:
+  db:
+
